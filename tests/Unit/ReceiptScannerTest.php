@@ -1,0 +1,53 @@
+<?php
+
+namespace Tests\Unit;
+
+use App\Services\ReceiptScanner;
+use PHPUnit\Framework\TestCase;
+use ReflectionClass;
+
+class ReceiptScannerTest extends TestCase
+{
+    public function test_it_extracts_simple_receipt_items_without_ai(): void
+    {
+        $scanner = new ReceiptScanner();
+        $method = (new ReflectionClass($scanner))->getMethod('extractItemsLocally');
+        $method->setAccessible(true);
+
+        $items = $method->invoke($scanner, 'Nasi Lemak RM5.50, Teh O RM2.00, Total RM7.50');
+
+        $this->assertCount(2, $items);
+        $this->assertSame('Nasi Lemak', $items[0]['description']);
+        $this->assertSame(5.50, $items[0]['amount']);
+        $this->assertSame('food', $items[0]['category']);
+    }
+
+    public function test_it_extracts_priced_receipt_lines_and_ignores_totals(): void
+    {
+        $scanner = new ReceiptScanner();
+        $method = (new ReflectionClass($scanner))->getMethod('extractItemsLocally');
+        $method->setAccessible(true);
+
+        $ocrText = <<<TEXT
+        INVOICE No : 10102_01/030218
+        Date : 21/05/2026 #1
+        QTY ITEM RM
+        *** Dine In ***
+        2 Set A @13.90 27.80
+          2 Ayam Bumbu Ori
+          1 Co*
+          2 Sambal Pedas
+          2 Iced Lemon Tea
+        2 SubTotal 27.80
+        Net Total 27.80
+        MyDebit 27,80
+        TEXT;
+
+        $items = $method->invoke($scanner, $ocrText);
+
+        $this->assertCount(1, $items);
+        $this->assertSame('Set A', $items[0]['description']);
+        $this->assertSame(27.80, $items[0]['amount']);
+        $this->assertSame('food', $items[0]['category']);
+    }
+}
