@@ -20,7 +20,7 @@
                     @auth
                         <a href="{{ route('dashboard') }}" class="font-medium text-gray-600 hover:text-emerald-700">Dashboard</a>
                         <a href="{{ route('transactions') }}" class="font-medium text-gray-600 hover:text-emerald-700">Transactions</a>
-                        <a href="{{ route('can-afford.form') }}" class="font-medium text-gray-600 hover:text-emerald-700">Can I Afford th?</a>
+                        <a href="{{ route('can-afford.form') }}" class="font-medium text-gray-600 hover:text-emerald-700">Can I Afford this?</a>
                         <a href="{{ route('scan-receipt.form') }}" class="font-medium text-gray-600 hover:text-emerald-700">Scan Receipt</a>
                         <a href="{{ route('leaderboard') }}" class="font-medium text-gray-600 hover:text-emerald-700">Leaderboard</a>
                         <a href="{{ route('profile.edit') }}" class="font-medium text-gray-600 hover:text-emerald-700">Profile</a>
