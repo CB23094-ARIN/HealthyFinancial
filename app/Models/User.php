@@ -42,16 +42,6 @@ class User extends Authenticatable
         return $this->hasMany(Transaction::class);
     }
 
-    public function budgets()
-    {
-        return $this->hasMany(Budget::class);
-    }
-
-    public function challenges()
-    {
-        return $this->hasMany(UserChallenge::class);
-    }
-
     public function leaderboard()
     {
         return $this->hasOne(Leaderboard::class);
