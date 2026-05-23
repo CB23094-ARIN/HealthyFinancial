@@ -30,7 +30,7 @@
         <div class="mt-6 p-4 bg-gray-50 rounded-lg">
             <p class="font-bold">{{ $answer }}</p>
             <p>{{ $advice }}</p>
-            <p class="text-emerald-600 mt-2 italic">AI nudge: {{ $funMessage }}</p>
+            <p class="text-emerald-600 mt-2 italic">AI note: {{ $funMessage }}</p>
         </div>
     @endisset
 </div>

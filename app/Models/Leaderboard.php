@@ -8,7 +8,7 @@ class Leaderboard extends Model
 {
     protected $table = 'leaderboard';
     protected $primaryKey = 'user_id';
-    protected $fillable = ['user_id', 'campus', 'points'];
+    protected $fillable = ['user_id', 'university_name', 'points'];
     public $incrementing = false;
 
     public function user()

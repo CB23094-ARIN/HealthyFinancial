@@ -10,15 +10,15 @@ PTPTN Mode bonus: on-track PTPTN users earn 20 bonus points; tight-but-protected
 Multiple transactions on the same day increase transaction points, but only count as one active day.
 Receipt scan items count as transactions too, because each item is saved as a transaction.
 
-Features: 
+# Features: 
 - Auto-categorization of spending using Gemini AI
 - Receipt scanning (OCR + AI parsing)
 - "Can I afford?" smart checker with AI-generated advice that changes based on the user's item, price, budget, and spending context
 - Financial health score + saving streak
-- Campus leaderboard & gamification
+- University leaderboard 
 - PTPTN Mode: a loan-aware student budgeting mode with safe daily spend, protected reserve, affordability guardrails, and a leaderboard bonus for staying disciplined
 
-# PTPTN Mode pitch angle
+# PTPTN Mode 
 PTPTN Mode is the standout student-focused feature. Instead of only saying "you spent RM X", HealthyFinancial turns a student's monthly budget or PTPTN money into a survival plan:
 
 - Shows how much the student can safely spend per day until month end.
@@ -28,4 +28,3 @@ PTPTN Mode is the standout student-focused feature. Instead of only saying "you 
 - Makes "Can I afford this?" stricter when the purchase would eat into the reserve.
 - Adds a PTPTN badge and bonus points when the user stays on track.
 
-This makes the app feel designed for Malaysian students, not just a generic expense tracker.

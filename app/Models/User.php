@@ -17,7 +17,7 @@ class User extends Authenticatable
         'password',
         'monthly_allowance',
         'ptptn_balance',
-        'campus',
+        'university_name',
         'ptptn_mode',
     ];
 

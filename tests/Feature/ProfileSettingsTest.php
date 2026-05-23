@@ -26,7 +26,7 @@ class ProfileSettingsTest extends TestCase
         $user = User::factory()->create([
             'name' => 'Aina',
             'email' => 'aina@example.com',
-            'campus' => 'KL',
+            'university_name' => 'UMPSA',
             'monthly_allowance' => 100,
         ]);
 
@@ -34,6 +34,7 @@ class ProfileSettingsTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('Account & Budget', false);
+        $response->assertSeeText('University name');
         $response->assertSeeText('Monthly budget (RM)');
         $response->assertSeeText('Enable PTPTN Mode');
         $response->assertSee('name="ptptn_balance"', false);
@@ -59,14 +60,14 @@ class ProfileSettingsTest extends TestCase
         $user = User::factory()->create([
             'name' => 'Old Name',
             'email' => 'old@example.com',
-            'campus' => null,
+            'university_name' => null,
             'monthly_allowance' => 0,
         ]);
 
         $response = $this->actingAs($user)->patch('/profile', [
             'name' => 'Aina Budget',
             'email' => 'aina@example.com',
-            'campus' => 'KL',
+            'university_name' => 'UMPSA',
             'monthly_budget' => 750.50,
         ]);
 
@@ -77,7 +78,7 @@ class ProfileSettingsTest extends TestCase
             'id' => $user->id,
             'name' => 'Aina Budget',
             'email' => 'aina@example.com',
-            'campus' => 'KL',
+            'university_name' => 'UMPSA',
             'monthly_allowance' => 750.50,
             'ptptn_mode' => false,
             'ptptn_balance' => 0,
@@ -95,7 +96,7 @@ class ProfileSettingsTest extends TestCase
         $response = $this->actingAs($user)->patch('/profile', [
             'name' => $user->name,
             'email' => $user->email,
-            'campus' => 'KL',
+            'university_name' => 'UMPSA',
             'monthly_budget' => 500,
             'ptptn_mode' => '1',
             'ptptn_balance' => 1200,

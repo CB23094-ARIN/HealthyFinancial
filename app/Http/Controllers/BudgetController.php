@@ -12,6 +12,7 @@ use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
@@ -57,13 +58,19 @@ class BudgetController extends Controller
             ->get();
 
         $ai = new AICategorizer();
+        $ptptnNote = $ptptnMetrics['enabled']
+            ? $this->ptptnHourlyNote($ai, $ptptnMetrics, $user->id)
+            : null;
+        $dashboardIntro = $ptptnMetrics['enabled']
+            ? $this->ptptnDashboardIntro($ai, $ptptnMetrics, $user->id)
+            : 'Track spending, update your budget, and keep your profile current.';
         $insight = $ptptnMetrics['enabled']
             ? $ptptnMetrics['message']
             : $ai->getSpendingInsight($weekly->toArray(), $user->monthly_allowance);
         $healthScore = $this->calculateHealthScore($user);
         $transactionCategories = $this->transactionCategories;
 
-        return view('dashboard', compact('transactions', 'totalSpent', 'remaining', 'insight', 'healthScore', 'ptptnMetrics', 'transactionCategories'));
+        return view('dashboard', compact('transactions', 'totalSpent', 'remaining', 'insight', 'healthScore', 'ptptnMetrics', 'ptptnNote', 'dashboardIntro', 'transactionCategories'));
     }
 
     public function showProfile(): View
@@ -78,7 +85,7 @@ class BudgetController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
-            'campus' => ['nullable', 'string', 'max:100'],
+            'university_name' => ['nullable', 'string', 'max:100'],
             'monthly_budget' => ['required', 'numeric', 'min:0'],
             'ptptn_mode' => ['nullable', 'boolean'],
             'ptptn_balance' => ['nullable', 'numeric', 'min:0', 'max:999999.99'],
@@ -87,7 +94,7 @@ class BudgetController extends Controller
         $user->update([
             'name' => $validated['name'],
             'email' => $validated['email'],
-            'campus' => $validated['campus'] ?? null,
+            'university_name' => $validated['university_name'] ?? null,
             'monthly_allowance' => $validated['monthly_budget'],
             'ptptn_mode' => $request->boolean('ptptn_mode'),
             'ptptn_balance' => $validated['ptptn_balance'] ?? 0,
@@ -350,8 +357,38 @@ class BudgetController extends Controller
 
         Leaderboard::updateOrCreate(
             ['user_id' => $user->id],
-            ['campus' => $user->campus ?? 'Unknown', 'points' => $points]
+            ['university_name' => $user->university_name ?? 'Unknown', 'points' => $points]
         );
+    }
+
+    protected function ptptnHourlyNote(AICategorizer $ai, array $ptptnMetrics, int $userId): string
+    {
+        $cacheKey = 'ptptn-hourly-note:' . $userId . ':' . now()->format('Y-m-d-H');
+
+        try {
+            return Cache::remember(
+                $cacheKey,
+                now()->copy()->endOfHour(),
+                fn () => $ai->getPtptnHourlyNote($ptptnMetrics, $userId)
+            );
+        } catch (Throwable) {
+            return $ai->getPtptnHourlyNote($ptptnMetrics, $userId);
+        }
+    }
+
+    protected function ptptnDashboardIntro(AICategorizer $ai, array $ptptnMetrics, int $userId): string
+    {
+        $cacheKey = 'ptptn-dashboard-intro:' . $userId . ':' . now()->format('Y-m-d-H');
+
+        try {
+            return Cache::remember(
+                $cacheKey,
+                now()->copy()->endOfHour(),
+                fn () => $ai->getPtptnDashboardIntro($ptptnMetrics, $userId)
+            );
+        } catch (Throwable) {
+            return $ai->getPtptnDashboardIntro($ptptnMetrics, $userId);
+        }
     }
 
     protected function calculateHealthScore($user): int

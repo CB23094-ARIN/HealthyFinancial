@@ -102,6 +102,9 @@ class BudgetWorkflowTest extends TestCase
         $response->assertSeeText('RM 135.00');
         $response->assertSeeText('PTPTN used');
         $response->assertSeeText('Monthly budget left');
+        $response->assertSeeText('AI note:');
+        $response->assertDontSeeText('Tiny reminder: pace your spending so PTPTN lasts comfortably.');
+        $response->assertDontSeeText('PTPTN Mode is watching your safe daily spend, reserve, and monthly runway.');
     }
 
     public function test_dashboard_includes_ptptn_in_remaining_balance_after_budget_is_exceeded(): void
@@ -218,7 +221,7 @@ class BudgetWorkflowTest extends TestCase
         $response->assertOk();
         $response->assertSeeText('Technically yes, but PTPTN Mode says pause on headphones.');
         $response->assertSeeText('below your PTPTN reserve');
-        $response->assertSeeText('AI nudge:');
+        $response->assertSeeText('AI note:');
     }
 
     public function test_scan_receipt_page_supports_camera_capture(): void
@@ -263,7 +266,7 @@ class BudgetWorkflowTest extends TestCase
 
         $user = User::factory()->create([
             'name' => 'Aina',
-            'campus' => 'KL',
+            'university_name' => 'UMPSA',
         ]);
 
         Transaction::create([
@@ -281,7 +284,7 @@ class BudgetWorkflowTest extends TestCase
         $response->assertSeeText('Aina');
         $this->assertDatabaseHas('leaderboard', [
             'user_id' => $user->id,
-            'campus' => 'KL',
+            'university_name' => 'UMPSA',
             'points' => 11,
         ]);
     }
@@ -292,7 +295,7 @@ class BudgetWorkflowTest extends TestCase
 
         $user = User::factory()->create([
             'name' => 'Aina',
-            'campus' => 'KL',
+            'university_name' => 'UMPSA',
             'monthly_allowance' => 500,
             'ptptn_mode' => true,
             'ptptn_balance' => 1000,

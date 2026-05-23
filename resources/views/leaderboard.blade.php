@@ -9,7 +9,7 @@
             <tr class="border-b">
                 <th>Rank</th>
                 <th>Name</th>
-                <th>Campus</th>
+                <th>University name</th>
                 <th>Points</th>
             </tr>
         </thead>
@@ -20,10 +20,9 @@
                 <td>
                     {{ $entry->user->name ?? 'Unknown' }}
                     @if($entry->user?->ptptn_mode)
-                        <span class="ml-2 rounded-full bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-700">PTPTN</span>
                     @endif
                 </td>
-                <td>{{ $entry->campus }}</td>
+                <td>{{ $entry->university_name }}</td>
                 <td class="font-bold text-emerald-600">{{ $entry->points }}</td>
             </tr>
             @endforeach

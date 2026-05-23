@@ -21,8 +21,8 @@
             <input type="email" name="email" value="{{ old('email') }}" class="border rounded-lg p-2 w-full" required>
         </div>
         <div>
-            <label class="block text-gray-700">Campus</label>
-            <input type="text" name="campus" value="{{ old('campus') }}" class="border rounded-lg p-2 w-full">
+            <label class="block text-gray-700">University name</label>
+            <input type="text" name="university_name" value="{{ old('university_name') }}" class="border rounded-lg p-2 w-full">
         </div>
         <div>
             <label class="block text-gray-700">Password</label>

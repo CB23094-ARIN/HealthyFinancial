@@ -31,8 +31,8 @@
             </div>
 
             <div>
-                <label class="text-sm font-medium text-gray-700">Campus</label>
-                <input type="text" name="campus" value="{{ old('campus', $user->campus) }}" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100">
+                <label class="text-sm font-medium text-gray-700">University name</label>
+                <input type="text" name="university_name" value="{{ old('university_name', $user->university_name) }}" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100">
             </div>
 
             <div>
@@ -52,7 +52,6 @@
                 <div class="mt-4">
                     <label class="text-sm font-medium text-gray-700">PTPTN balance or target to protect (RM)</label>
                     <input type="number" step="0.01" min="0" name="ptptn_balance" value="{{ old('ptptn_balance', $ptptnBalance) }}" class="mt-1 w-full rounded-lg border border-emerald-200 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100">
-                    <p class="mt-2 text-xs text-emerald-800">This is used only for in-app planning, not official PTPTN repayment advice.</p>
                 </div>
             </div>
 
