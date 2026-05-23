@@ -31,6 +31,8 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'monthly_allowance' => 'float',
+            'ptptn_balance' => 'float',
             'ptptn_mode' => 'boolean',
         ];
     }

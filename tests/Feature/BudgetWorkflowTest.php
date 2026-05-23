@@ -75,6 +75,63 @@ class BudgetWorkflowTest extends TestCase
         $response->assertSeeText('Search transactions');
     }
 
+    public function test_dashboard_shows_ptptn_mode_guardrail_when_enabled(): void
+    {
+        Carbon::setTestNow('2026-05-22 10:00:00');
+
+        $user = User::factory()->create([
+            'monthly_allowance' => 500,
+            'ptptn_mode' => true,
+            'ptptn_balance' => 1000,
+        ]);
+
+        Transaction::create([
+            'user_id' => $user->id,
+            'description' => 'Groceries',
+            'amount' => 100,
+            'category' => 'Living expenses',
+            'transaction_date' => now(),
+            'is_auto_categorized' => false,
+        ]);
+
+        $response = $this->actingAs($user)->get('/dashboard');
+
+        $response->assertOk();
+        $response->assertSeeText('PTPTN Mode');
+        $response->assertSeeText('Loan-aware spending guardrail');
+        $response->assertSeeText('RM 135.00');
+        $response->assertSeeText('PTPTN used');
+        $response->assertSeeText('Monthly budget left');
+    }
+
+    public function test_dashboard_includes_ptptn_in_remaining_balance_after_budget_is_exceeded(): void
+    {
+        Carbon::setTestNow('2026-05-23 10:00:00');
+
+        $user = User::factory()->create([
+            'monthly_allowance' => 10,
+            'ptptn_mode' => true,
+            'ptptn_balance' => 10000,
+        ]);
+
+        Transaction::create([
+            'user_id' => $user->id,
+            'description' => 'Semester supplies',
+            'amount' => 4623.98,
+            'category' => 'Education',
+            'transaction_date' => now(),
+            'is_auto_categorized' => false,
+        ]);
+
+        $response = $this->actingAs($user)->get('/dashboard');
+
+        $response->assertOk();
+        $response->assertSeeText('Remaining balance');
+        $response->assertSeeText('RM 5,386.02');
+        $response->assertSeeText('RM 4,613.98');
+        $response->assertSeeText('is now coming from PTPTN');
+    }
+
     public function test_transactions_can_be_searched_and_filtered(): void
     {
         $user = User::factory()->create();
@@ -134,6 +191,36 @@ class BudgetWorkflowTest extends TestCase
         $response->assertDontSee('**', false);
     }
 
+    public function test_ptptn_mode_can_afford_protects_reserve(): void
+    {
+        Carbon::setTestNow('2026-05-22 10:00:00');
+
+        $user = User::factory()->create([
+            'monthly_allowance' => 500,
+            'ptptn_mode' => true,
+            'ptptn_balance' => 1000,
+        ]);
+
+        Transaction::create([
+            'user_id' => $user->id,
+            'description' => 'Rent',
+            'amount' => 1400,
+            'category' => 'Living expenses',
+            'transaction_date' => now(),
+            'is_auto_categorized' => false,
+        ]);
+
+        $response = $this->actingAs($user)->post('/can-afford', [
+            'item_name' => 'headphones',
+            'item_price' => 60,
+        ]);
+
+        $response->assertOk();
+        $response->assertSeeText('Technically yes, but PTPTN Mode says pause on headphones.');
+        $response->assertSeeText('below your PTPTN reserve');
+        $response->assertSeeText('AI nudge:');
+    }
+
     public function test_scan_receipt_page_supports_camera_capture(): void
     {
         $user = User::factory()->create();
@@ -144,6 +231,30 @@ class BudgetWorkflowTest extends TestCase
         $response->assertSee('capture="environment"', false);
         $response->assertSee('id="startCamera"', false);
         $response->assertSee('getUserMedia', false);
+    }
+
+    public function test_dashboard_refreshes_stale_saving_streak_by_day(): void
+    {
+        Carbon::setTestNow('2026-05-23 10:00:00');
+
+        $user = User::factory()->create([
+            'saving_streak' => 99,
+        ]);
+
+        Transaction::create([
+            'user_id' => $user->id,
+            'description' => 'Old lunch',
+            'amount' => 8,
+            'category' => 'Food',
+            'transaction_date' => '2026-05-20',
+            'is_auto_categorized' => false,
+        ]);
+
+        $response = $this->actingAs($user)->get('/dashboard');
+
+        $response->assertOk();
+        $response->assertSeeText('0 days');
+        $this->assertSame(0, $user->refresh()->saving_streak);
     }
 
     public function test_leaderboard_syncs_from_existing_transactions(): void
@@ -172,6 +283,37 @@ class BudgetWorkflowTest extends TestCase
             'user_id' => $user->id,
             'campus' => 'KL',
             'points' => 11,
+        ]);
+    }
+
+    public function test_ptptn_mode_adds_leaderboard_bonus_when_on_track(): void
+    {
+        Carbon::setTestNow('2026-05-22 10:00:00');
+
+        $user = User::factory()->create([
+            'name' => 'Aina',
+            'campus' => 'KL',
+            'monthly_allowance' => 500,
+            'ptptn_mode' => true,
+            'ptptn_balance' => 1000,
+        ]);
+
+        Transaction::create([
+            'user_id' => $user->id,
+            'description' => 'Lunch',
+            'amount' => 8,
+            'category' => 'Food',
+            'transaction_date' => now(),
+            'is_auto_categorized' => false,
+        ]);
+
+        $response = $this->actingAs($user)->get('/leaderboard');
+
+        $response->assertOk();
+        $response->assertSeeText('PTPTN');
+        $this->assertDatabaseHas('leaderboard', [
+            'user_id' => $user->id,
+            'points' => 31,
         ]);
     }
 }

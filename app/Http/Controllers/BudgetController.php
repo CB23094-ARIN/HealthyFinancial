@@ -6,6 +6,7 @@ use App\Models\Leaderboard;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Services\AICategorizer;
+use App\Services\PtptnMode;
 use App\Services\ReceiptScanner;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
@@ -35,16 +36,19 @@ class BudgetController extends Controller
     public function dashboard(): View
     {
         $user = Auth::user();
+        $this->refreshSavingStreak($user);
+        $user->refresh();
+
         $transactions = Transaction::where('user_id', $user->id)
             ->orderBy('transaction_date', 'desc')
             ->take(10)
             ->get();
 
-        $totalSpent = Transaction::where('user_id', $user->id)
-            ->whereMonth('transaction_date', now()->month)
-            ->sum('amount');
-
-        $remaining = $user->monthly_allowance - $totalSpent;
+        $totalSpent = $this->monthlySpentThisMonth($user);
+        $ptptnMetrics = (new PtptnMode())->metrics($user, (float) $totalSpent);
+        $remaining = $ptptnMetrics['enabled']
+            ? $ptptnMetrics['remaining']
+            : $user->monthly_allowance - $totalSpent;
 
         $weekly = Transaction::where('user_id', $user->id)
             ->whereBetween('transaction_date', [now()->subDays(7), now()])
@@ -53,11 +57,13 @@ class BudgetController extends Controller
             ->get();
 
         $ai = new AICategorizer();
-        $insight = $ai->getSpendingInsight($weekly->toArray(), $user->monthly_allowance);
+        $insight = $ptptnMetrics['enabled']
+            ? $ptptnMetrics['message']
+            : $ai->getSpendingInsight($weekly->toArray(), $user->monthly_allowance);
         $healthScore = $this->calculateHealthScore($user);
         $transactionCategories = $this->transactionCategories;
 
-        return view('dashboard', compact('transactions', 'totalSpent', 'remaining', 'insight', 'healthScore', 'transactionCategories'));
+        return view('dashboard', compact('transactions', 'totalSpent', 'remaining', 'insight', 'healthScore', 'ptptnMetrics', 'transactionCategories'));
     }
 
     public function showProfile(): View
@@ -74,6 +80,8 @@ class BudgetController extends Controller
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
             'campus' => ['nullable', 'string', 'max:100'],
             'monthly_budget' => ['required', 'numeric', 'min:0'],
+            'ptptn_mode' => ['nullable', 'boolean'],
+            'ptptn_balance' => ['nullable', 'numeric', 'min:0', 'max:999999.99'],
         ]);
 
         $user->update([
@@ -81,13 +89,15 @@ class BudgetController extends Controller
             'email' => $validated['email'],
             'campus' => $validated['campus'] ?? null,
             'monthly_allowance' => $validated['monthly_budget'],
+            'ptptn_mode' => $request->boolean('ptptn_mode'),
+            'ptptn_balance' => $validated['ptptn_balance'] ?? 0,
         ]);
 
         $this->updateUserProgress($user);
 
         return redirect()
             ->route('profile.edit')
-            ->with('success', 'Account and budget updated.');
+            ->with('success', 'Account, budget, and PTPTN settings updated.');
     }
 
     public function updatePassword(Request $request): RedirectResponse
@@ -142,15 +152,21 @@ class BudgetController extends Controller
         ]);
 
         $user = Auth::user();
-        $totalSpent = Transaction::where('user_id', $user->id)
-            ->whereMonth('transaction_date', now()->month)
-            ->sum('amount');
+        $totalSpent = $this->monthlySpentThisMonth($user);
 
-        $remaining = $user->monthly_allowance - $totalSpent;
         $price = (float) $request->item_price;
         $itemName = $request->item_name;
+        $ptptnMode = new PtptnMode();
+        $ptptnMetrics = $ptptnMode->metrics($user, (float) $totalSpent);
+        $remaining = $ptptnMetrics['enabled']
+            ? $ptptnMetrics['remaining']
+            : $user->monthly_allowance - $totalSpent;
+        $ptptnDecision = $ptptnMode->affordability($user, $itemName, $price, (float) $totalSpent);
 
-        if ($price <= $remaining) {
+        if ($ptptnDecision) {
+            $answer = $ptptnDecision['answer'];
+            $advice = $ptptnDecision['advice'];
+        } elseif ($price <= $remaining) {
             $answer = "Yes, you can afford {$itemName}.";
             $advice = 'You will have RM' . number_format($remaining - $price, 2) . ' left for the rest of the month.';
         } else {
@@ -170,12 +186,15 @@ class BudgetController extends Controller
         $ai = new AICategorizer();
         $funMessage = $ai->getFunMessage($itemName, $price, $remaining);
 
-        return view('can-afford', compact('answer', 'advice', 'funMessage'));
+        return view('can-afford', compact('answer', 'advice', 'funMessage', 'ptptnMetrics'));
     }
 
     public function showCanAffordForm(): View
     {
-        return view('can-afford');
+        $user = Auth::user();
+        $ptptnMetrics = (new PtptnMode())->metrics($user, $this->monthlySpentThisMonth($user));
+
+        return view('can-afford', compact('ptptnMetrics'));
     }
 
     public function uploadReceipt(Request $request): RedirectResponse
@@ -259,10 +278,20 @@ class BudgetController extends Controller
 
     protected function updateUserProgress($user): void
     {
-        $user->saving_streak = $this->calculateSavingStreak($user);
-        $user->save();
-
+        $this->refreshSavingStreak($user);
         $this->syncLeaderboard($user);
+    }
+
+    protected function refreshSavingStreak(User $user): void
+    {
+        $streak = $this->calculateSavingStreak($user);
+
+        if ((int) $user->saving_streak === $streak) {
+            return;
+        }
+
+        $user->saving_streak = $streak;
+        $user->save();
     }
 
     protected function calculateSavingStreak($user): int
@@ -316,7 +345,8 @@ class BudgetController extends Controller
             ->get()
             ->count();
 
-        $points = $transactionCount + ($activeDays * 10) + ((int) floor($user->saving_streak / 7) * 25);
+        $ptptnBonus = (new PtptnMode())->leaderboardBonus($user, $this->monthlySpentThisMonth($user));
+        $points = $transactionCount + ($activeDays * 10) + ((int) floor($user->saving_streak / 7) * 25) + $ptptnBonus;
 
         Leaderboard::updateOrCreate(
             ['user_id' => $user->id],
@@ -326,18 +356,35 @@ class BudgetController extends Controller
 
     protected function calculateHealthScore($user): int
     {
-        $totalSpent = Transaction::where('user_id', $user->id)
-            ->whereMonth('transaction_date', now()->month)
-            ->sum('amount');
+        $totalSpent = $this->monthlySpentThisMonth($user);
 
-        if ($user->monthly_allowance == 0) {
+        $ptptnMetrics = (new PtptnMode())->metrics($user, (float) $totalSpent);
+        $scoreBase = $user->ptptn_mode
+            ? $ptptnMetrics['total_available']
+            : (float) $user->monthly_allowance;
+
+        if ($scoreBase == 0) {
             return 50;
         }
 
-        $spendRatio = $totalSpent / $user->monthly_allowance;
+        $spendRatio = $totalSpent / $scoreBase;
         $score = 100 - ($spendRatio * 100);
         $score += min($user->saving_streak, 20);
 
+        if ($user->ptptn_mode) {
+            $ptptnStatus = $ptptnMetrics['status'];
+            $score += $ptptnStatus === 'on_track' ? 5 : 0;
+            $score -= in_array($ptptnStatus, ['over_budget', 'protect_reserve'], true) ? 10 : 0;
+        }
+
         return (int) round(max(0, min(100, $score)));
+    }
+
+    protected function monthlySpentThisMonth(User $user): float
+    {
+        return (float) Transaction::where('user_id', $user->id)
+            ->whereMonth('transaction_date', now()->month)
+            ->whereYear('transaction_date', now()->year)
+            ->sum('amount');
     }
 }

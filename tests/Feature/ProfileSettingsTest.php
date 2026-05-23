@@ -35,6 +35,8 @@ class ProfileSettingsTest extends TestCase
         $response->assertOk();
         $response->assertSee('Account & Budget', false);
         $response->assertSeeText('Monthly budget (RM)');
+        $response->assertSeeText('Enable PTPTN Mode');
+        $response->assertSee('name="ptptn_balance"', false);
         $response->assertSeeText('Change password');
         $response->assertSee(route('profile.password.update'), false);
         $response->assertSee('name="current_password"', false);
@@ -69,7 +71,7 @@ class ProfileSettingsTest extends TestCase
         ]);
 
         $response->assertRedirect(route('profile.edit'));
-        $response->assertSessionHas('success', 'Account and budget updated.');
+        $response->assertSessionHas('success', 'Account, budget, and PTPTN settings updated.');
 
         $this->assertDatabaseHas('users', [
             'id' => $user->id,
@@ -77,6 +79,35 @@ class ProfileSettingsTest extends TestCase
             'email' => 'aina@example.com',
             'campus' => 'KL',
             'monthly_allowance' => 750.50,
+            'ptptn_mode' => false,
+            'ptptn_balance' => 0,
+        ]);
+    }
+
+    public function test_user_can_enable_ptptn_mode_from_profile_page(): void
+    {
+        $user = User::factory()->create([
+            'monthly_allowance' => 0,
+            'ptptn_mode' => false,
+            'ptptn_balance' => 0,
+        ]);
+
+        $response = $this->actingAs($user)->patch('/profile', [
+            'name' => $user->name,
+            'email' => $user->email,
+            'campus' => 'KL',
+            'monthly_budget' => 500,
+            'ptptn_mode' => '1',
+            'ptptn_balance' => 1200,
+        ]);
+
+        $response->assertRedirect(route('profile.edit'));
+
+        $this->assertDatabaseHas('users', [
+            'id' => $user->id,
+            'ptptn_mode' => true,
+            'ptptn_balance' => 1200,
+            'monthly_allowance' => 500,
         ]);
     }
 

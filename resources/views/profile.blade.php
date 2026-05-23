@@ -3,6 +3,7 @@
 @section('content')
 @php
     $budget = (float) $user->monthly_allowance;
+    $ptptnBalance = (float) $user->ptptn_balance;
 @endphp
 
 <div class="mx-auto max-w-xl space-y-6">
@@ -37,6 +38,22 @@
             <div>
                 <label class="text-sm font-medium text-gray-700">Monthly budget (RM)</label>
                 <input type="number" step="0.01" min="0" name="monthly_budget" value="{{ old('monthly_budget', $budget) }}" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100" required>
+            </div>
+
+            <div class="rounded-lg border border-emerald-200 bg-emerald-50 p-4">
+                <label class="flex items-start gap-3">
+                    <input type="checkbox" name="ptptn_mode" value="1" class="mt-1 rounded border-emerald-300 text-emerald-600 focus:ring-emerald-500" @checked(old('ptptn_mode', $user->ptptn_mode))>
+                    <span>
+                        <span class="block text-sm font-semibold text-gray-950">Enable PTPTN Mode</span>
+                        <span class="mt-1 block text-sm text-emerald-900">Turn your monthly budget into a loan-aware spending plan with a safe daily spend, protected reserve, and leaderboard bonus.</span>
+                    </span>
+                </label>
+
+                <div class="mt-4">
+                    <label class="text-sm font-medium text-gray-700">PTPTN balance or target to protect (RM)</label>
+                    <input type="number" step="0.01" min="0" name="ptptn_balance" value="{{ old('ptptn_balance', $ptptnBalance) }}" class="mt-1 w-full rounded-lg border border-emerald-200 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100">
+                    <p class="mt-2 text-xs text-emerald-800">This is used only for in-app planning, not official PTPTN repayment advice.</p>
+                </div>
             </div>
 
             <button type="submit" class="w-full rounded-lg bg-gray-950 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-800">Save changes</button>

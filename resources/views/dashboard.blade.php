@@ -4,7 +4,9 @@
 @php
     $user = auth()->user();
     $budget = (float) $user->monthly_allowance;
-    $spentPercent = $budget > 0 ? min(100, max(0, ($totalSpent / $budget) * 100)) : 0;
+    $remainingBalance = $ptptnMetrics['enabled'] ? $ptptnMetrics['remaining'] : $remaining;
+    $spendingBase = $ptptnMetrics['enabled'] ? $ptptnMetrics['total_available'] : $budget;
+    $spentPercent = $spendingBase > 0 ? min(100, max(0, ($totalSpent / $spendingBase) * 100)) : 0;
 @endphp
 
 <div class="space-y-6">
@@ -18,7 +20,13 @@
         <div>
             <p class="text-sm font-medium uppercase tracking-wide text-emerald-700">Dashboard</p>
             <h1 class="mt-1 text-3xl font-bold text-gray-950">Welcome back, {{ $user->name }}</h1>
-            <p class="mt-2 text-gray-500">Track spending, update your budget, and keep your profile current.</p>
+            <p class="mt-2 text-gray-500">
+                @if($ptptnMetrics['enabled'])
+                    PTPTN Mode is watching your safe daily spend, reserve, and monthly runway.
+                @else
+                    Track spending, update your budget, and keep your profile current.
+                @endif
+            </p>
         </div>
         <a href="{{ route('scan-receipt.form') }}" class="inline-flex items-center justify-center rounded-lg bg-gray-950 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-800">
             Scan receipt
@@ -35,16 +43,62 @@
             <p class="mt-2 text-2xl font-bold text-rose-600">RM {{ number_format($totalSpent, 2) }}</p>
         </div>
         <div class="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
-            <p class="text-sm text-gray-500">Remaining</p>
-            <p class="mt-2 text-2xl font-bold {{ $remaining < 0 ? 'text-rose-600' : 'text-emerald-600' }}">
-                RM {{ number_format($remaining, 2) }}
+            <p class="text-sm text-gray-500">{{ $ptptnMetrics['enabled'] ? 'Remaining balance' : 'Remaining' }}</p>
+            <p class="mt-2 text-2xl font-bold {{ $remainingBalance < 0 ? 'text-rose-600' : 'text-emerald-600' }}">
+                RM {{ number_format($remainingBalance, 2) }}
             </p>
+            @if($ptptnMetrics['enabled'])
+                <p class="mt-1 text-xs text-gray-500">Monthly budget + PTPTN</p>
+            @endif
         </div>
         <div class="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
             <p class="text-sm text-gray-500">Saving streak</p>
-            <p class="mt-2 text-2xl font-bold text-amber-600">{{ $user->saving_streak }} days</p>
+            <p class="mt-2 text-2xl font-bold text-amber-600">{{ $user->saving_streak }} {{ $user->saving_streak === 1 ? 'day' : 'days' }}</p>
         </div>
     </div>
+
+    @if($ptptnMetrics['enabled'])
+        <div class="rounded-lg border border-emerald-200 bg-emerald-50 p-6 shadow-sm">
+            <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                <div>
+                    <p class="text-sm font-semibold uppercase tracking-wide text-emerald-700">PTPTN Mode</p>
+                    <h2 class="mt-1 text-xl font-bold text-gray-950">Loan-aware spending guardrail</h2>
+                    <p class="mt-2 text-sm text-emerald-900">{{ $ptptnMetrics['message'] }}</p>
+                </div>
+                <a href="{{ route('profile.edit') }}" class="inline-flex items-center justify-center rounded-lg border border-emerald-600 px-4 py-2 text-sm font-semibold text-emerald-800 hover:bg-white">
+                    Tune PTPTN mode
+                </a>
+            </div>
+
+            <div class="mt-5 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-5">
+                <div>
+                    <p class="text-xs font-medium uppercase tracking-wide text-emerald-700">Safe daily spend</p>
+                    <p class="mt-1 text-2xl font-bold text-gray-950">RM {{ number_format($ptptnMetrics['daily_safe_spend'], 2) }}</p>
+                    <p class="mt-1 text-xs text-emerald-800">{{ $ptptnMetrics['days_left'] }} days left this month</p>
+                </div>
+                <div>
+                    <p class="text-xs font-medium uppercase tracking-wide text-emerald-700">Monthly budget left</p>
+                    <p class="mt-1 text-2xl font-bold text-gray-950">RM {{ number_format($ptptnMetrics['monthly_budget_remaining'], 2) }}</p>
+                    <p class="mt-1 text-xs text-emerald-800">Monthly budget stays separate</p>
+                </div>
+                <div>
+                    <p class="text-xs font-medium uppercase tracking-wide text-emerald-700">PTPTN used</p>
+                    <p class="mt-1 text-2xl font-bold text-gray-950">RM {{ number_format($ptptnMetrics['ptptn_used'], 2) }}</p>
+                    <p class="mt-1 text-xs text-emerald-800">Only after budget is exceeded</p>
+                </div>
+                <div>
+                    <p class="text-xs font-medium uppercase tracking-wide text-emerald-700">Spendable now</p>
+                    <p class="mt-1 text-2xl font-bold text-gray-950">RM {{ number_format($ptptnMetrics['spendable_after_reserve'], 2) }}</p>
+                    <p class="mt-1 text-xs text-emerald-800">After RM {{ number_format($ptptnMetrics['recommended_reserve'], 2) }} reserve</p>
+                </div>
+                <div>
+                    <p class="text-xs font-medium uppercase tracking-wide text-emerald-700">PTPTN left</p>
+                    <p class="mt-1 text-2xl font-bold text-gray-950">RM {{ number_format($ptptnMetrics['ptptn_remaining'], 2) }}</p>
+                    <p class="mt-1 text-xs text-emerald-800">Remaining PTPTN balance</p>
+                </div>
+            </div>
+        </div>
+    @endif
 
     <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
         <div class="flex items-center justify-between gap-4">
@@ -59,7 +113,7 @@
         </div>
         <div class="mt-2 flex justify-between text-xs text-gray-500">
             <span>RM 0</span>
-            <span>{{ number_format($spentPercent, 0) }}% used</span>
+            <span>{{ number_format($spentPercent, 0) }}% {{ $ptptnMetrics['enabled'] ? 'total funds used' : 'used' }}</span>
         </div>
     </div>
 
