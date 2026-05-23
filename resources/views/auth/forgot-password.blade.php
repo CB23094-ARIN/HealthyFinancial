@@ -2,7 +2,10 @@
 
 @section('content')
 <div class="bg-white rounded-2xl shadow p-6 max-w-md mx-auto">
-    <h1 class="text-2xl font-bold mb-4">Forgot password</h1>
+    <h1 class="text-2xl font-bold mb-3">Forgot your password?</h1>
+    <p class="mb-5 text-sm leading-6 text-gray-600">
+        No problem. Just enter your personal email address, and we will email you a password reset link that will allow you to choose a new one.
+    </p>
 
     @if($errors->any())
         <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded">
@@ -19,10 +22,18 @@
     <form method="POST" action="{{ route('password.email') }}" class="space-y-4">
         @csrf
         <div>
-            <label class="block text-gray-700">Email</label>
-            <input type="email" name="email" value="{{ old('email') }}" class="border rounded-lg p-2 w-full" required autofocus>
+            <label class="block text-gray-700">Personal E-mail Address</label>
+            <input
+                type="email"
+                name="email"
+                value="{{ old('email') }}"
+                placeholder="Enter your personal email address"
+                class="border rounded-lg p-2 w-full"
+                required
+                autofocus
+            >
         </div>
-        <button type="submit" class="bg-emerald-500 text-white rounded-lg px-4 py-2 w-full hover:bg-emerald-600">Send reset link</button>
+        <button type="submit" class="bg-emerald-500 text-white rounded-lg px-4 py-2 w-full hover:bg-emerald-600">Email Password Reset Link</button>
     </form>
 
     <p class="text-sm text-gray-500 mt-4">

@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 
 class AuthController extends Controller
 {
@@ -53,7 +54,13 @@ class AuthController extends Controller
             'email' => ['required', 'email'],
         ]);
 
-        $status = Password::sendResetLink($request->only('email'));
+        try {
+            $status = Password::sendResetLink($request->only('email'));
+        } catch (TransportExceptionInterface) {
+            return back()
+                ->withErrors(['email' => 'The reset email could not be sent. Check the Gmail App Password in .env, then try again.'])
+                ->onlyInput('email');
+        }
 
         return $status === Password::RESET_LINK_SENT
             ? back()->with('status', __($status))

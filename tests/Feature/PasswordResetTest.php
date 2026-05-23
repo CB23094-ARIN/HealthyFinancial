@@ -8,6 +8,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Password;
+use Symfony\Component\Mailer\Exception\TransportException;
 use Tests\TestCase;
 
 class PasswordResetTest extends TestCase
@@ -21,6 +22,18 @@ class PasswordResetTest extends TestCase
         $response->assertOk();
         $response->assertSeeText('Forgot password?');
         $response->assertSee(route('password.request'), false);
+    }
+
+    public function test_forgot_password_page_uses_personal_email_copy(): void
+    {
+        $response = $this->get('/forgot-password');
+
+        $response->assertOk();
+        $response->assertSeeText('Forgot your password?');
+        $response->assertSeeText('No problem. Just enter your personal email address');
+        $response->assertSeeText('Personal E-mail Address');
+        $response->assertSee('placeholder="Enter your personal email address"', false);
+        $response->assertSeeText('Email Password Reset Link');
     }
 
     public function test_user_can_request_password_reset_link(): void
@@ -37,6 +50,43 @@ class PasswordResetTest extends TestCase
 
         $response->assertSessionHas('status');
         Notification::assertSentTo($user, ResetPassword::class);
+    }
+
+    public function test_user_can_request_password_reset_link_again_without_waiting(): void
+    {
+        Notification::fake();
+
+        $user = User::factory()->create([
+            'email' => 'aina@example.com',
+        ]);
+
+        $this->post('/forgot-password', [
+            'email' => 'aina@example.com',
+        ])->assertSessionHas('status');
+
+        $this->post('/forgot-password', [
+            'email' => 'aina@example.com',
+        ])->assertSessionHas('status');
+
+        Notification::assertSentToTimes($user, ResetPassword::class, 2);
+    }
+
+    public function test_password_reset_request_handles_mail_transport_failure(): void
+    {
+        User::factory()->create([
+            'email' => 'aina@example.com',
+        ]);
+
+        Password::shouldReceive('sendResetLink')
+            ->once()
+            ->andThrow(new TransportException('Bad SMTP credentials'));
+
+        $response = $this->from('/forgot-password')->post('/forgot-password', [
+            'email' => 'aina@example.com',
+        ]);
+
+        $response->assertRedirect('/forgot-password');
+        $response->assertSessionHasErrors('email');
     }
 
     public function test_user_can_reset_password_with_valid_token(): void
