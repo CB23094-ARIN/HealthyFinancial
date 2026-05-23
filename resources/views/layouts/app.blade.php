@@ -45,7 +45,7 @@
                 <a href="{{ route('can-afford.form') }}" class="hf-sidebar-link {{ request()->routeIs('can-afford.*') ? 'hf-sidebar-link-active' : '' }}">Can I Afford this?</a>
                 <a href="{{ route('scan-receipt.form') }}" class="hf-sidebar-link {{ request()->routeIs('scan-receipt.*') ? 'hf-sidebar-link-active' : '' }}">Scan Receipt</a>
                 <a href="{{ route('leaderboard') }}" class="hf-sidebar-link {{ request()->routeIs('leaderboard') ? 'hf-sidebar-link-active' : '' }}">Leaderboard</a>
-                <a href="{{ route('profile.edit') }}" class="hf-sidebar-link {{ request()->routeIs('profile.*') ? 'hf-sidebar-link-active' : '' }}">Profile</a>
+                <a href="{{ route('profile.edit') }}" class="hf-sidebar-link {{ request()->routeIs('profile.*') ? 'hf-sidebar-link-active' : '' }}">Profile & Budget</a>
             </aside>
         @endif
 

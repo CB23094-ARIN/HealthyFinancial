@@ -30,7 +30,9 @@
         <div class="hf-note mt-6 rounded-lg p-4">
             <p class="font-bold">{{ $answer }}</p>
             <p class="mt-1">{{ $advice }}</p>
-            <p class="mt-2 italic">AI note: {{ $funMessage }}</p>
+            <p class="hf-ai-warning mt-3">
+                <span class="font-semibold">AI note:</span> {{ $funMessage }}
+            </p>
         </div>
     @endisset
 </div>

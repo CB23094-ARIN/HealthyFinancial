@@ -316,6 +316,16 @@ label:not(.sr-only) {
     color: var(--hf-title);
 }
 
+.hf-ai-warning {
+    border: 1px solid #f59e0b;
+    border-left-width: 0.35rem;
+    border-radius: 0.75rem;
+    background: #fffbeb;
+    color: #92400e;
+    font-style: italic;
+    padding: 0.75rem 0.9rem;
+}
+
 .hf-auth-logo {
     display: block;
     width: min(22rem, 100%);
