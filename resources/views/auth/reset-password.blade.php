@@ -15,18 +15,18 @@
         <input type="hidden" name="token" value="{{ $token }}">
 
         <div>
-            <label class="block text-gray-700">Email</label>
-            <input type="email" name="email" value="{{ old('email', $email) }}" class="border rounded-lg p-2 w-full" required autofocus>
+            <label for="reset_email" class="block text-gray-700">Email</label>
+            <input id="reset_email" type="email" name="email" value="{{ old('email', $email) }}" class="border rounded-lg p-2 w-full" required autofocus>
         </div>
 
         <div>
-            <label class="block text-gray-700">New password</label>
-            <input type="password" name="password" class="border rounded-lg p-2 w-full" required>
+            <label for="reset_password" class="block text-gray-700">New password</label>
+            <input id="reset_password" type="password" name="password" class="border rounded-lg p-2 w-full" required>
         </div>
 
         <div>
-            <label class="block text-gray-700">Confirm new password</label>
-            <input type="password" name="password_confirmation" class="border rounded-lg p-2 w-full" required>
+            <label for="reset_password_confirmation" class="block text-gray-700">Confirm new password</label>
+            <input id="reset_password_confirmation" type="password" name="password_confirmation" class="border rounded-lg p-2 w-full" required>
         </div>
 
         <button type="submit" class="bg-emerald-500 text-white rounded-lg px-4 py-2 w-full hover:bg-emerald-600">Reset password</button>

@@ -22,8 +22,9 @@
     <form method="POST" action="{{ route('password.email') }}" class="space-y-4">
         @csrf
         <div>
-            <label class="block text-gray-700">Personal E-mail Address</label>
+            <label for="forgot_email" class="block text-gray-700">Personal E-mail Address</label>
             <input
+                id="forgot_email"
                 type="email"
                 name="email"
                 value="{{ old('email') }}"

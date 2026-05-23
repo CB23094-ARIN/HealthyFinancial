@@ -21,28 +21,28 @@
             @method('PATCH')
 
             <div>
-                <label class="text-sm font-medium text-gray-700">Name</label>
-                <input type="text" name="name" value="{{ old('name', $user->name) }}" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100" required>
+                <label for="profile_name" class="text-sm font-medium text-gray-700">Name</label>
+                <input id="profile_name" type="text" name="name" value="{{ old('name', $user->name) }}" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100" required>
             </div>
 
             <div>
-                <label class="text-sm font-medium text-gray-700">Email</label>
-                <input type="email" name="email" value="{{ old('email', $user->email) }}" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100" required>
+                <label for="profile_email" class="text-sm font-medium text-gray-700">Email</label>
+                <input id="profile_email" type="email" name="email" value="{{ old('email', $user->email) }}" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100" required>
             </div>
 
             <div>
-                <label class="text-sm font-medium text-gray-700">University name</label>
-                <input type="text" name="university_name" value="{{ old('university_name', $user->university_name) }}" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100">
+                <label for="profile_university_name" class="text-sm font-medium text-gray-700">University name</label>
+                <input id="profile_university_name" type="text" name="university_name" value="{{ old('university_name', $user->university_name) }}" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100">
             </div>
 
             <div>
-                <label class="text-sm font-medium text-gray-700">Monthly budget (RM)</label>
-                <input type="number" step="0.01" min="0" name="monthly_budget" value="{{ old('monthly_budget', $budget) }}" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100" required>
+                <label for="profile_monthly_budget" class="text-sm font-medium text-gray-700">Monthly budget (RM)</label>
+                <input id="profile_monthly_budget" type="number" step="0.01" min="0" name="monthly_budget" value="{{ old('monthly_budget', $budget) }}" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100" required>
             </div>
 
             <div class="rounded-lg border border-emerald-200 bg-emerald-50 p-4">
                 <label class="flex items-start gap-3">
-                    <input type="checkbox" name="ptptn_mode" value="1" class="mt-1 rounded border-emerald-300 text-emerald-600 focus:ring-emerald-500" @checked(old('ptptn_mode', $user->ptptn_mode))>
+                    <input id="profile_ptptn_mode" type="checkbox" name="ptptn_mode" value="1" class="mt-1 rounded border-emerald-300 text-emerald-600 focus:ring-emerald-500" @checked(old('ptptn_mode', $user->ptptn_mode))>
                     <span>
                         <span class="block text-sm font-semibold text-gray-950">Enable PTPTN Mode</span>
                         <span class="mt-1 block text-sm text-emerald-900">Turn your monthly budget into a loan-aware spending plan with a safe daily spend, protected reserve, and leaderboard bonus.</span>
@@ -50,8 +50,8 @@
                 </label>
 
                 <div class="mt-4">
-                    <label class="text-sm font-medium text-gray-700">PTPTN balance or target to protect (RM)</label>
-                    <input type="number" step="0.01" min="0" name="ptptn_balance" value="{{ old('ptptn_balance', $ptptnBalance) }}" class="mt-1 w-full rounded-lg border border-emerald-200 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100">
+                    <label for="profile_ptptn_balance" class="text-sm font-medium text-gray-700">PTPTN balance or target to protect (RM)</label>
+                    <input id="profile_ptptn_balance" type="number" step="0.01" min="0" name="ptptn_balance" value="{{ old('ptptn_balance', $ptptnBalance) }}" class="mt-1 w-full rounded-lg border border-emerald-200 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100">
                 </div>
             </div>
 
@@ -67,18 +67,18 @@
             @method('PATCH')
 
             <div>
-                <label class="text-sm font-medium text-gray-700">Current password</label>
-                <input type="password" name="current_password" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100" required>
+                <label for="current_password" class="text-sm font-medium text-gray-700">Current password</label>
+                <input id="current_password" type="password" name="current_password" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100" required>
             </div>
 
             <div>
-                <label class="text-sm font-medium text-gray-700">New password</label>
-                <input type="password" name="password" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100" required>
+                <label for="new_password" class="text-sm font-medium text-gray-700">New password</label>
+                <input id="new_password" type="password" name="password" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100" required>
             </div>
 
             <div>
-                <label class="text-sm font-medium text-gray-700">Confirm new password</label>
-                <input type="password" name="password_confirmation" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100" required>
+                <label for="new_password_confirmation" class="text-sm font-medium text-gray-700">Confirm new password</label>
+                <input id="new_password_confirmation" type="password" name="password_confirmation" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100" required>
             </div>
 
             <button type="submit" class="w-full rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700">Update password</button>

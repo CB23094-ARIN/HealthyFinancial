@@ -13,24 +13,24 @@
     <form method="POST" action="{{ route('register.store') }}" class="space-y-4">
         @csrf
         <div>
-            <label class="block text-gray-700">Name</label>
-            <input type="text" name="name" value="{{ old('name') }}" class="border rounded-lg p-2 w-full" required autofocus>
+            <label for="register_name" class="block text-gray-700">Name</label>
+            <input id="register_name" type="text" name="name" value="{{ old('name') }}" class="border rounded-lg p-2 w-full" required autofocus>
         </div>
         <div>
-            <label class="block text-gray-700">Email</label>
-            <input type="email" name="email" value="{{ old('email') }}" class="border rounded-lg p-2 w-full" required>
+            <label for="register_email" class="block text-gray-700">Email</label>
+            <input id="register_email" type="email" name="email" value="{{ old('email') }}" class="border rounded-lg p-2 w-full" required>
         </div>
         <div>
-            <label class="block text-gray-700">University name</label>
-            <input type="text" name="university_name" value="{{ old('university_name') }}" class="border rounded-lg p-2 w-full">
+            <label for="register_university_name" class="block text-gray-700">University name</label>
+            <input id="register_university_name" type="text" name="university_name" value="{{ old('university_name') }}" class="border rounded-lg p-2 w-full">
         </div>
         <div>
-            <label class="block text-gray-700">Password</label>
-            <input type="password" name="password" class="border rounded-lg p-2 w-full" required>
+            <label for="register_password" class="block text-gray-700">Password</label>
+            <input id="register_password" type="password" name="password" class="border rounded-lg p-2 w-full" required>
         </div>
         <div>
-            <label class="block text-gray-700">Confirm password</label>
-            <input type="password" name="password_confirmation" class="border rounded-lg p-2 w-full" required>
+            <label for="register_password_confirmation" class="block text-gray-700">Confirm password</label>
+            <input id="register_password_confirmation" type="password" name="password_confirmation" class="border rounded-lg p-2 w-full" required>
         </div>
         <button type="submit" class="bg-emerald-500 text-white rounded-lg px-4 py-2 w-full hover:bg-emerald-600">Register</button>
     </form>

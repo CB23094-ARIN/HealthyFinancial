@@ -72,6 +72,8 @@ class BudgetWorkflowTest extends TestCase
         $response->assertSeeText('Beverages');
         $response->assertSeeText('Living expenses');
         $response->assertSeeText('Savings and investments');
+        $response->assertSeeText('Month runway');
+        $response->assertSeeText('Budget runway');
         $response->assertSeeText('Search transactions');
     }
 

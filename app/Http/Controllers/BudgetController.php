@@ -58,9 +58,8 @@ class BudgetController extends Controller
             ->get();
 
         $ai = new AICategorizer();
-        $ptptnNote = $ptptnMetrics['enabled']
-            ? $this->ptptnHourlyNote($ai, $ptptnMetrics, $user->id)
-            : null;
+        $budgetRunway = $this->budgetRunwayMetrics($user, (float) $totalSpent, $ptptnMetrics);
+        $budgetRunwayNote = $this->budgetRunwayNote($ai, $budgetRunway, $user->id);
         $dashboardIntro = $ptptnMetrics['enabled']
             ? $this->ptptnDashboardIntro($ai, $ptptnMetrics, $user->id)
             : 'Track spending, update your budget, and keep your profile current.';
@@ -70,7 +69,7 @@ class BudgetController extends Controller
         $healthScore = $this->calculateHealthScore($user);
         $transactionCategories = $this->transactionCategories;
 
-        return view('dashboard', compact('transactions', 'totalSpent', 'remaining', 'insight', 'healthScore', 'ptptnMetrics', 'ptptnNote', 'dashboardIntro', 'transactionCategories'));
+        return view('dashboard', compact('transactions', 'totalSpent', 'remaining', 'insight', 'healthScore', 'ptptnMetrics', 'budgetRunway', 'budgetRunwayNote', 'dashboardIntro', 'transactionCategories'));
     }
 
     public function showProfile(): View
@@ -388,6 +387,70 @@ class BudgetController extends Controller
             );
         } catch (Throwable) {
             return $ai->getPtptnDashboardIntro($ptptnMetrics, $userId);
+        }
+    }
+
+    protected function budgetRunwayMetrics(User $user, float $totalSpent, array $ptptnMetrics): array
+    {
+        $monthlyBudget = (float) $user->monthly_allowance;
+        $ptptnEnabled = (bool) data_get($ptptnMetrics, 'enabled', false);
+        $daysLeft = (int) data_get($ptptnMetrics, 'days_left', max(1, now()->daysInMonth - now()->day + 1));
+        $totalAvailable = $ptptnEnabled
+            ? (float) data_get($ptptnMetrics, 'total_available', $monthlyBudget)
+            : $monthlyBudget;
+        $remaining = $ptptnEnabled
+            ? (float) data_get($ptptnMetrics, 'remaining', $totalAvailable - $totalSpent)
+            : $monthlyBudget - $totalSpent;
+        $dailySafeSpend = max(0, $remaining) / max(1, $daysLeft);
+
+        $status = match (true) {
+            $totalAvailable <= 0 => 'setup_needed',
+            $remaining < 0 => 'over_budget',
+            $dailySafeSpend <= 0 => 'no_daily_budget',
+            $dailySafeSpend < 10 => 'tight',
+            default => 'on_track',
+        };
+
+        $message = match ($status) {
+            'setup_needed' => 'Set a monthly budget first so your month runway can guide daily spending.',
+            'over_budget' => 'Spending is over your available budget; pause non-essentials and review recent transactions.',
+            'no_daily_budget' => 'Your daily budget is used up; keep spending to essentials only.',
+            'tight' => 'Budget runway is tight; keep daily spending small and predictable.',
+            default => 'Your budget runway looks steady; keep pacing spending through month end.',
+        };
+
+        return [
+            'days_left' => $daysLeft,
+            'monthly_budget' => round($monthlyBudget, 2),
+            'monthly_spent' => round($totalSpent, 2),
+            'total_available' => round($totalAvailable, 2),
+            'remaining' => round($remaining, 2),
+            'daily_safe_spend' => round($dailySafeSpend, 2),
+            'ptptn_enabled' => $ptptnEnabled,
+            'ptptn_remaining' => round((float) data_get($ptptnMetrics, 'ptptn_remaining', 0), 2),
+            'status' => $status,
+            'message' => $message,
+        ];
+    }
+
+    protected function budgetRunwayNote(AICategorizer $ai, array $budgetRunway, int $userId): string
+    {
+        $cacheKey = 'budget-runway-note:' . $userId . ':' . now()->format('Y-m-d-H') . ':' . md5(json_encode([
+            $budgetRunway['status'],
+            $budgetRunway['remaining'],
+            $budgetRunway['daily_safe_spend'],
+            $budgetRunway['ptptn_enabled'],
+            $budgetRunway['ptptn_remaining'],
+        ]));
+
+        try {
+            return Cache::remember(
+                $cacheKey,
+                now()->copy()->endOfHour(),
+                fn () => $ai->getBudgetRunwayNote($budgetRunway, $userId)
+            );
+        } catch (Throwable) {
+            return $ai->getBudgetRunwayNote($budgetRunway, $userId);
         }
     }
 

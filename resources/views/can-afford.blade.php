@@ -16,12 +16,12 @@
     <form method="POST" action="{{ route('can-afford.check') }}">
         @csrf
         <div class="mb-4">
-            <label class="block text-gray-700">Item name</label>
-            <input type="text" name="item_name" class="border rounded-lg p-2 w-full" required>
+            <label for="item_name" class="block text-gray-700">Item name</label>
+            <input id="item_name" type="text" name="item_name" class="border rounded-lg p-2 w-full" required>
         </div>
         <div class="mb-4">
-            <label class="block text-gray-700">Price (RM)</label>
-            <input type="number" step="0.01" name="item_price" class="border rounded-lg p-2 w-full" required>
+            <label for="item_price" class="block text-gray-700">Price (RM)</label>
+            <input id="item_price" type="number" step="0.01" name="item_price" class="border rounded-lg p-2 w-full" required>
         </div>
         <button type="submit" class="bg-emerald-500 text-white rounded-lg px-4 py-2 w-full">Check</button>
     </form>

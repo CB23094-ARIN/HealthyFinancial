@@ -90,19 +90,38 @@
                 </div>
             </div>
 
-            <div class="flex h-full flex-col justify-center rounded-lg border border-emerald-300 bg-white p-5 text-center shadow-sm">
-                <p class="text-xs font-semibold uppercase tracking-wide text-emerald-700">Month runway</p>
-                <div class="mt-3 flex items-baseline justify-center gap-1">
-                    <span class="text-5xl font-black text-emerald-700">{{ $ptptnMetrics['days_left'] }}</span>
-                    <span class="text-sm font-semibold text-emerald-900">days</span>
-                </div>
-                <p class="mt-1 text-xs font-medium text-emerald-700">left this month</p>
-                <p class="mt-4 rounded-md bg-emerald-50 px-3 py-2 text-xs leading-5 text-emerald-900">
-                    <span class="font-semibold">AI note:</span> {{ $ptptnNote }}
-                </p>
-            </div>
+            @include('partials.month-runway-card')
         </div>
 
+    @else
+        <div class="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-[minmax(0,1fr)_16rem]">
+            <div class="h-full rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+                <p class="text-sm font-semibold uppercase tracking-wide text-emerald-700">Budget runway</p>
+                <h2 class="mt-1 text-xl font-bold text-gray-950">Monthly spending pace</h2>
+                <p class="mt-2 text-sm text-gray-600">{{ $budgetRunway['message'] }}</p>
+
+                <div class="mt-5 grid grid-cols-1 gap-3 md:grid-cols-4">
+                    <div>
+                        <p class="text-xs font-medium uppercase tracking-wide text-gray-500">Safe daily spend</p>
+                        <p class="mt-1 text-2xl font-bold text-gray-950">RM {{ number_format($budgetRunway['daily_safe_spend'], 2) }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs font-medium uppercase tracking-wide text-gray-500">Budget left</p>
+                        <p class="mt-1 text-2xl font-bold {{ $budgetRunway['remaining'] < 0 ? 'text-rose-600' : 'text-gray-950' }}">RM {{ number_format($budgetRunway['remaining'], 2) }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs font-medium uppercase tracking-wide text-gray-500">Spent this month</p>
+                        <p class="mt-1 text-2xl font-bold text-gray-950">RM {{ number_format($budgetRunway['monthly_spent'], 2) }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs font-medium uppercase tracking-wide text-gray-500">Days left</p>
+                        <p class="mt-1 text-2xl font-bold text-gray-950">{{ $budgetRunway['days_left'] }}</p>
+                    </div>
+                </div>
+            </div>
+
+            @include('partials.month-runway-card')
+        </div>
     @endif
 
     <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
@@ -125,15 +144,19 @@
         <h2 class="text-lg font-semibold text-gray-950">Add transaction</h2>
         <form action="{{ route('transaction.store') }}" method="POST" class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-4">
             @csrf
-            <input type="text" name="description" placeholder="e.g. Nasi Lemak" class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100" required>
-            <input type="number" step="0.01" name="amount" placeholder="Amount (RM)" class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100" required>
-            <select name="category" class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100" required>
+            <label for="transaction_description" class="sr-only">Description</label>
+            <input id="transaction_description" type="text" name="description" placeholder="e.g. Nasi Lemak" class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100" required>
+            <label for="transaction_amount" class="sr-only">Amount (RM)</label>
+            <input id="transaction_amount" type="number" step="0.01" name="amount" placeholder="Amount (RM)" class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100" required>
+            <label for="transaction_category" class="sr-only">Category</label>
+            <select id="transaction_category" name="category" class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100" required>
                 <option value="">Select category</option>
                 @foreach($transactionCategories as $category)
                     <option value="{{ $category }}" @selected(old('category') === $category)>{{ $category }}</option>
                 @endforeach
             </select>
-            <input type="date" name="transaction_date" value="{{ date('Y-m-d') }}" class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100" required>
+            <label for="transaction_date" class="sr-only">Transaction date</label>
+            <input id="transaction_date" type="date" name="transaction_date" value="{{ date('Y-m-d') }}" class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100" required>
             <button type="submit" class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 md:col-span-4">Add transaction</button>
         </form>
         <div class="mt-4 flex justify-end">

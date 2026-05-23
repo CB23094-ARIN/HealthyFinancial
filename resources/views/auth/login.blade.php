@@ -19,16 +19,16 @@
     <form method="POST" action="{{ route('login.store') }}" class="space-y-4">
         @csrf
         <div>
-            <label class="block text-gray-700">Email</label>
-            <input type="email" name="email" value="{{ old('email') }}" class="border rounded-lg p-2 w-full" required autofocus>
+            <label for="login_email" class="block text-gray-700">Email</label>
+            <input id="login_email" type="email" name="email" value="{{ old('email') }}" class="border rounded-lg p-2 w-full" required autofocus>
         </div>
         <div>
-            <label class="block text-gray-700">Password</label>
-            <input type="password" name="password" class="border rounded-lg p-2 w-full" required>
+            <label for="login_password" class="block text-gray-700">Password</label>
+            <input id="login_password" type="password" name="password" class="border rounded-lg p-2 w-full" required>
         </div>
         <div class="flex items-center justify-between gap-3">
             <label class="flex items-center gap-2 text-sm text-gray-600">
-                <input type="checkbox" name="remember" value="1">
+                <input id="remember" type="checkbox" name="remember" value="1">
                 Remember me
             </label>
             <a href="{{ route('password.request') }}" class="text-sm font-medium text-emerald-600 hover:text-emerald-700">Forgot password?</a>

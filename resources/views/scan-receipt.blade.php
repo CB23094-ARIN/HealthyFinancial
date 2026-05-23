@@ -15,7 +15,7 @@
 
         {{-- Receipt Upload --}}
         <div class="mb-4">
-            <label class="block text-gray-700 font-medium mb-2">
+            <label for="receiptInput" class="block text-gray-700 font-medium mb-2">
                 Receipt Image
             </label>
 
