@@ -18,34 +18,34 @@
 
     <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
-            <p class="text-sm font-medium uppercase tracking-wide text-emerald-700">Dashboard</p>
-            <h1 class="mt-1 text-3xl font-bold text-gray-950">Welcome back, {{ $user->name }}</h1>
-            <p class="mt-2 text-gray-500">
+            <p class="hf-kicker text-sm font-semibold uppercase tracking-wide">Dashboard</p>
+            <h1 class="hf-title mt-1 text-3xl font-black tracking-tight">Welcome back, {{ $user->name }}</h1>
+            <p class="hf-muted mt-2">
                 {{ $dashboardIntro }}
             </p>
         </div>
-        <a href="{{ route('scan-receipt.form') }}" class="inline-flex items-center justify-center rounded-lg bg-gray-950 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-800">
+        <a href="{{ route('scan-receipt.form') }}" class="hf-btn inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-semibold">
             Scan receipt
         </a>
     </div>
 
     <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
-        <div class="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
+        <div class="hf-card rounded-lg p-5">
             <p class="text-sm text-gray-500">Monthly budget</p>
             <p class="mt-2 text-2xl font-bold text-gray-950">RM {{ number_format($budget, 2) }}</p>
         </div>
-        <div class="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
+        <div class="hf-card rounded-lg p-5">
             <p class="text-sm text-gray-500">Spent this month</p>
             <p class="mt-2 text-2xl font-bold text-rose-600">RM {{ number_format($totalSpent, 2) }}</p>
         </div>
-        <div class="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
+        <div class="hf-card rounded-lg p-5">
             <p class="text-sm text-gray-500">{{ $ptptnMetrics['enabled'] ? 'Remaining balance' : 'Remaining' }}</p>
             <p class="mt-2 text-2xl font-bold {{ $remainingBalance < 0 ? 'text-rose-600' : 'text-emerald-600' }}">
                 RM {{ number_format($remainingBalance, 2) }}
             </p>
 
         </div>
-        <div class="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
+        <div class="hf-card rounded-lg p-5">
             <p class="text-sm text-gray-500">Saving streak</p>
             <p class="mt-2 text-2xl font-bold text-amber-600">{{ $user->saving_streak }} {{ $user->saving_streak === 1 ? 'day' : 'days' }}</p>
         </div>
@@ -53,14 +53,14 @@
 
     @if($ptptnMetrics['enabled'])
         <div class="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-[minmax(0,1fr)_16rem]">
-            <div class="h-full rounded-lg border border-emerald-200 bg-emerald-50 p-6 shadow-sm">
+            <div class="hf-soft-card h-full rounded-lg p-6">
                 <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                     <div class="max-w-3xl">
                         <p class="text-sm font-semibold uppercase tracking-wide text-emerald-700">PTPTN Mode</p>
                         <h2 class="mt-1 text-xl font-bold text-gray-950">Loan-aware spending guardrail</h2>
                         <p class="mt-2 text-sm text-emerald-900">{{ $ptptnMetrics['message'] }}</p>
                     </div>
-                    <a href="{{ route('profile.edit') }}" class="inline-flex items-center justify-center rounded-lg border border-emerald-600 bg-white/70 px-4 py-2 text-sm font-semibold text-emerald-800 hover:bg-white">
+                    <a href="{{ route('profile.edit') }}" class="hf-btn-secondary inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-semibold">
                         Tune PTPTN mode
                     </a>
                 </div>
@@ -95,7 +95,7 @@
 
     @else
         <div class="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-[minmax(0,1fr)_16rem]">
-            <div class="h-full rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+            <div class="hf-card h-full rounded-lg p-6">
                 <p class="text-sm font-semibold uppercase tracking-wide text-emerald-700">Budget runway</p>
                 <h2 class="mt-1 text-xl font-bold text-gray-950">Monthly spending pace</h2>
                 <p class="mt-2 text-sm text-gray-600">{{ $budgetRunway['message'] }}</p>
@@ -124,7 +124,7 @@
         </div>
     @endif
 
-    <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+    <div class="hf-card rounded-lg p-6">
         <div class="flex items-center justify-between gap-4">
             <div>
                 <h2 class="text-lg font-semibold text-gray-950">Budget health</h2>
@@ -140,31 +140,31 @@
         </div>
     </div>
 
-    <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+    <div class="hf-card rounded-lg p-6">
         <h2 class="text-lg font-semibold text-gray-950">Add transaction</h2>
         <form action="{{ route('transaction.store') }}" method="POST" class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-4">
             @csrf
             <label for="transaction_description" class="sr-only">Description</label>
-            <input id="transaction_description" type="text" name="description" placeholder="e.g. Nasi Lemak" class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100" required>
+            <input id="transaction_description" type="text" name="description" placeholder="e.g. Nasi Lemak" class="hf-input" required>
             <label for="transaction_amount" class="sr-only">Amount (RM)</label>
-            <input id="transaction_amount" type="number" step="0.01" name="amount" placeholder="Amount (RM)" class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100" required>
+            <input id="transaction_amount" type="number" step="0.01" name="amount" placeholder="Amount (RM)" class="hf-input" required>
             <label for="transaction_category" class="sr-only">Category</label>
-            <select id="transaction_category" name="category" class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100" required>
+            <select id="transaction_category" name="category" class="hf-input" required>
                 <option value="">Select category</option>
                 @foreach($transactionCategories as $category)
                     <option value="{{ $category }}" @selected(old('category') === $category)>{{ $category }}</option>
                 @endforeach
             </select>
             <label for="transaction_date" class="sr-only">Transaction date</label>
-            <input id="transaction_date" type="date" name="transaction_date" value="{{ date('Y-m-d') }}" class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100" required>
-            <button type="submit" class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 md:col-span-4">Add transaction</button>
+            <input id="transaction_date" type="date" name="transaction_date" value="{{ date('Y-m-d') }}" class="hf-input" required>
+            <button type="submit" class="hf-btn rounded-lg px-4 py-2 text-sm font-semibold md:col-span-4">Add transaction</button>
         </form>
         <div class="mt-4 flex justify-end">
-            <a href="{{ route('transactions') }}" class="text-sm font-medium text-emerald-700 hover:text-emerald-800">Search transactions</a>
+            <a href="{{ route('transactions') }}" class="hf-link text-sm font-medium">Search transactions</a>
         </div>
     </div>
 
-    <div class="rounded-lg border border-gray-200 bg-white shadow-sm">
+    <div class="hf-card overflow-hidden rounded-lg">
         <div class="border-b border-gray-200 p-6">
             <h2 class="text-lg font-semibold text-gray-950">Recent transactions</h2>
         </div>

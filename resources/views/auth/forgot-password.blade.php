@@ -1,9 +1,9 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="bg-white rounded-2xl shadow p-6 max-w-md mx-auto">
-    <h1 class="text-2xl font-bold mb-3">Forgot your password?</h1>
-    <p class="mb-5 text-sm leading-6 text-gray-600">
+<div class="hf-card mx-auto max-w-md rounded-2xl p-8">
+    <h1 class="hf-title mb-3 text-3xl font-black tracking-tight">Forgot your password?</h1>
+    <p class="hf-muted mb-6 text-sm leading-6">
         No problem. Just enter your personal email address, and we will email you a password reset link that will allow you to choose a new one.
     </p>
 
@@ -22,24 +22,24 @@
     <form method="POST" action="{{ route('password.email') }}" class="space-y-4">
         @csrf
         <div>
-            <label for="forgot_email" class="block text-gray-700">Personal E-mail Address</label>
+            <label for="forgot_email" class="hf-label-text">Personal E-mail Address</label>
             <input
                 id="forgot_email"
                 type="email"
                 name="email"
                 value="{{ old('email') }}"
                 placeholder="Enter your personal email address"
-                class="border rounded-lg p-2 w-full"
+                class="hf-input mt-1"
                 required
                 autofocus
             >
         </div>
-        <button type="submit" class="bg-emerald-500 text-white rounded-lg px-4 py-2 w-full hover:bg-emerald-600">Email Password Reset Link</button>
+        <button type="submit" class="hf-btn w-full rounded-lg px-4 py-2.5 font-semibold">Email Password Reset Link</button>
     </form>
 
-    <p class="text-sm text-gray-500 mt-4">
+    <p class="hf-muted mt-5 text-sm">
         Remember your password?
-        <a href="{{ route('login') }}" class="text-emerald-600 hover:text-emerald-700">Login</a>
+        <a href="{{ route('login') }}" class="hf-link font-medium">Login</a>
     </p>
 </div>
 @endsection

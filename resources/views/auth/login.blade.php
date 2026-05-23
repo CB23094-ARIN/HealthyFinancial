@@ -1,8 +1,11 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="bg-white rounded-2xl shadow p-6 max-w-md mx-auto">
-    <h1 class="text-2xl font-bold mb-4">Login</h1>
+<div class="hf-card mx-auto max-w-md rounded-2xl p-8">
+    <img src="{{ asset('images/healthyfinancial-logo.png') }}" alt="HealthyFinancial" class="hf-auth-logo">
+
+    <h1 class="hf-title mb-2 text-3xl font-black tracking-tight">Login</h1>
+    <p class="hf-muted mb-6 text-sm">Welcome back. Keep your spending calm and clear.</p>
 
     @if($errors->any())
         <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded">
@@ -19,26 +22,26 @@
     <form method="POST" action="{{ route('login.store') }}" class="space-y-4">
         @csrf
         <div>
-            <label for="login_email" class="block text-gray-700">Email</label>
-            <input id="login_email" type="email" name="email" value="{{ old('email') }}" class="border rounded-lg p-2 w-full" required autofocus>
+            <label for="login_email" class="hf-label-text">Email</label>
+            <input id="login_email" type="email" name="email" value="{{ old('email') }}" class="hf-input mt-1" required autofocus>
         </div>
         <div>
-            <label for="login_password" class="block text-gray-700">Password</label>
-            <input id="login_password" type="password" name="password" class="border rounded-lg p-2 w-full" required>
+            <label for="login_password" class="hf-label-text">Password</label>
+            <input id="login_password" type="password" name="password" class="hf-input mt-1" required>
         </div>
         <div class="flex items-center justify-between gap-3">
             <label class="flex items-center gap-2 text-sm text-gray-600">
                 <input id="remember" type="checkbox" name="remember" value="1">
                 Remember me
             </label>
-            <a href="{{ route('password.request') }}" class="text-sm font-medium text-emerald-600 hover:text-emerald-700">Forgot password?</a>
+            <a href="{{ route('password.request') }}" class="hf-link text-sm font-medium">Forgot password?</a>
         </div>
-        <button type="submit" class="bg-emerald-500 text-white rounded-lg px-4 py-2 w-full hover:bg-emerald-600">Login</button>
+        <button type="submit" class="hf-btn w-full rounded-lg px-4 py-2.5 font-semibold">Login</button>
     </form>
 
-    <p class="text-sm text-gray-500 mt-4">
+    <p class="hf-muted mt-5 text-sm">
         No account yet?
-        <a href="{{ route('register') }}" class="text-emerald-600 hover:text-emerald-700">Register</a>
+        <a href="{{ route('register') }}" class="hf-link font-medium">Register</a>
     </p>
 </div>
 @endsection

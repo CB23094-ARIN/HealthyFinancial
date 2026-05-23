@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="bg-white rounded-2xl shadow p-6 max-w-xl mx-auto">
-    <h1 class="text-2xl font-bold mb-6">Scan Receipt</h1>
+<div class="hf-card mx-auto max-w-xl rounded-2xl p-8">
+    <h1 class="hf-title mb-6 text-3xl font-black tracking-tight">Scan Receipt</h1>
 
     @if($errors->any())
         <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded">
@@ -15,7 +15,7 @@
 
         {{-- Receipt Upload --}}
         <div class="mb-4">
-            <label for="receiptInput" class="block text-gray-700 font-medium mb-2">
+            <label for="receiptInput" class="hf-label-text mb-2">
                 Receipt Image
             </label>
 
@@ -25,7 +25,7 @@
                 name="receipt"
                 accept="image/*"
                 capture="environment"
-                class="w-full border border-gray-300 rounded-lg p-3"
+                class="hf-input w-full"
                 required
             >
         </div>
@@ -35,14 +35,14 @@
             <button
                 type="button"
                 id="startCamera"
-                class="w-full border border-emerald-500 text-emerald-700 rounded-lg px-4 py-3 hover:bg-emerald-50 transition">
+                class="hf-btn-secondary w-full rounded-lg px-4 py-3 font-semibold transition">
                 Open Camera
             </button>
 
             <button
                 type="button"
                 id="capturePhoto"
-                class="hidden w-full mt-2 bg-emerald-500 text-white rounded-lg px-4 py-3 hover:bg-emerald-600 transition">
+                class="hf-btn mt-2 hidden w-full rounded-lg px-4 py-3 font-semibold transition">
                 Capture Photo
             </button>
         </div>
@@ -62,7 +62,7 @@
         {{-- Submit --}}
         <button
             type="submit"
-            class="w-full bg-emerald-500 text-white rounded-lg px-4 py-3 font-semibold hover:bg-emerald-600 transition">
+            class="hf-btn w-full rounded-lg px-4 py-3 font-semibold transition">
             Scan & Add
         </button>
     </form>

@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="bg-white rounded-2xl shadow p-6 max-w-xl mx-auto">
-    <h1 class="text-2xl font-bold mb-4">Can I Afford This?</h1>
+<div class="hf-card mx-auto max-w-xl rounded-2xl p-8">
+    <h1 class="hf-title mb-4 text-3xl font-black tracking-tight">Can I Afford This?</h1>
 
     @isset($ptptnMetrics)
         @if($ptptnMetrics['enabled'])
-            <div class="mb-5 rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
-                <p class="font-semibold text-gray-950">PTPTN Mode is active</p>
+            <div class="hf-note mb-5 rounded-lg p-4 text-sm">
+                <p class="font-semibold">PTPTN Mode is active</p>
                 <p class="mt-1">This checker now protects your RM {{ number_format($ptptnMetrics['recommended_reserve'], 2) }} reserve and RM {{ number_format($ptptnMetrics['daily_safe_spend'], 2) }} daily safe spend before approving wants.</p>
             </div>
         @endif
@@ -16,21 +16,21 @@
     <form method="POST" action="{{ route('can-afford.check') }}">
         @csrf
         <div class="mb-4">
-            <label for="item_name" class="block text-gray-700">Item name</label>
-            <input id="item_name" type="text" name="item_name" class="border rounded-lg p-2 w-full" required>
+            <label for="item_name" class="hf-label-text">Item name</label>
+            <input id="item_name" type="text" name="item_name" class="hf-input mt-1" required>
         </div>
         <div class="mb-4">
-            <label for="item_price" class="block text-gray-700">Price (RM)</label>
-            <input id="item_price" type="number" step="0.01" name="item_price" class="border rounded-lg p-2 w-full" required>
+            <label for="item_price" class="hf-label-text">Price (RM)</label>
+            <input id="item_price" type="number" step="0.01" name="item_price" class="hf-input mt-1" required>
         </div>
-        <button type="submit" class="bg-emerald-500 text-white rounded-lg px-4 py-2 w-full">Check</button>
+        <button type="submit" class="hf-btn w-full rounded-lg px-4 py-2.5 font-semibold">Check</button>
     </form>
 
     @isset($answer)
-        <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+        <div class="hf-note mt-6 rounded-lg p-4">
             <p class="font-bold">{{ $answer }}</p>
-            <p>{{ $advice }}</p>
-            <p class="text-emerald-600 mt-2 italic">AI note: {{ $funMessage }}</p>
+            <p class="mt-1">{{ $advice }}</p>
+            <p class="mt-2 italic">AI note: {{ $funMessage }}</p>
         </div>
     @endisset
 </div>
