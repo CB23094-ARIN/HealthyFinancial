@@ -32,51 +32,131 @@ body {
     color: var(--hf-ink);
 }
 
-nav {
+.hf-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 30;
     border-color: var(--hf-nav) !important;
     background: var(--hf-nav) !important;
 }
 
-nav .hf-title,
-nav .hf-link {
+.hf-topbar-inner {
+    display: flex;
+    min-height: 4.5rem;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+}
+
+.hf-topbar .hf-title {
     color: #ffffff !important;
 }
 
-nav .hf-brand {
+.hf-topbar .hf-brand {
     display: inline-flex;
     align-items: center;
-    gap: 0.65rem;
+    gap: 0.5rem;
     white-space: nowrap;
 }
 
-nav .hf-brand-icon {
-    height: 2.55rem;
-    width: 2.55rem;
+.hf-topbar .hf-brand-icon {
+    height: 2.15rem;
+    width: 2.15rem;
     border-radius: 9999px;
     border: 2px solid rgba(255, 255, 255, 0.9);
     background: #ffffff;
     object-fit: cover;
 }
 
-nav .hf-link {
+.hf-power-logout {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
     border-radius: 9999px;
-    padding: 0.25rem 0.1rem;
-    white-space: nowrap;
-}
-
-nav .hf-link:hover,
-nav .hf-link:focus,
-nav .hf-link:active,
-nav .hf-link-active {
-    background: transparent !important;
-    color: #ffffff !important;
-    outline: none;
-    text-decoration: underline;
-    text-underline-offset: 0.25rem;
-}
-
-nav .hf-link-active {
+    background: #ffffff;
+    color: var(--hf-nav);
+    padding: 0.4rem 0.8rem 0.4rem 0.5rem;
     font-weight: 800;
+    line-height: 1;
+    transition: transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+}
+
+.hf-power-logout:hover,
+.hf-power-logout:focus {
+    background: #f4f6ff;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.25);
+    transform: translateY(-1px);
+}
+
+.hf-power-logout:active {
+    animation: hf-power-click 360ms ease;
+}
+
+.hf-power-icon {
+    height: 1.8rem;
+    width: 1.8rem;
+}
+
+@keyframes hf-power-click {
+    0% {
+        transform: scale(1) rotate(0deg);
+    }
+    45% {
+        transform: scale(0.9) rotate(-10deg);
+    }
+    100% {
+        transform: scale(1) rotate(0deg);
+    }
+}
+
+.hf-app-shell {
+    display: flex;
+    align-items: flex-start;
+    min-height: calc(100vh - 4.5rem);
+}
+
+.hf-sidebar {
+    position: sticky;
+    top: 4.5rem;
+    width: 17rem;
+    flex: 0 0 17rem;
+    height: calc(100vh - 4.5rem);
+    overflow-y: auto;
+    border-right: 1px solid var(--hf-border);
+    background: #ffffff;
+    padding: 1.25rem;
+}
+
+.hf-sidebar-link {
+    display: flex;
+    align-items: center;
+    border: 1px solid transparent;
+    border-radius: 0.875rem;
+    color: var(--hf-label);
+    font-weight: 800;
+    margin-bottom: 0.45rem;
+    padding: 0.8rem 0.9rem;
+}
+
+.hf-sidebar-link:hover,
+.hf-sidebar-link:focus,
+.hf-sidebar-link-active {
+    background: var(--hf-surface-soft);
+    border-color: var(--hf-border-strong);
+    color: var(--hf-label);
+    outline: none;
+}
+
+.hf-sidebar-link-active {
+    text-decoration: none;
+}
+
+.hf-app-main {
+    flex: 1;
+    min-width: 0;
+    padding: 2rem 0;
 }
 
 .hf-btn-active {
@@ -84,19 +164,39 @@ nav .hf-link-active {
     text-underline-offset: 0.25rem;
 }
 
-nav .hf-logout {
-    border-radius: 9999px;
-    background: #ffffff;
-    color: var(--hf-nav);
-    padding: 0.35rem 0.8rem;
-    white-space: nowrap;
+@media (min-width: 640px) {
+    .hf-topbar-inner {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+    }
 }
 
-nav .hf-logout:hover,
-nav .hf-logout:focus {
-    background: #f4f6ff;
-    color: var(--hf-nav);
-    outline: none;
+@media (min-width: 1024px) {
+    .hf-topbar-inner {
+        padding-left: 2.5rem;
+        padding-right: 2.5rem;
+    }
+}
+
+@media (max-width: 900px) {
+    .hf-app-shell {
+        display: block;
+    }
+
+    .hf-sidebar {
+        position: static;
+        width: auto;
+        height: auto;
+        border-bottom: 1px solid var(--hf-border);
+        border-right: 0;
+        padding: 0.75rem 1rem;
+    }
+
+    .hf-sidebar-link {
+        display: inline-flex;
+        margin: 0.2rem;
+        padding: 0.6rem 0.75rem;
+    }
 }
 
 input:not([type='checkbox']),
