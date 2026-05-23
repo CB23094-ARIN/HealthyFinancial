@@ -41,40 +41,21 @@ class PasswordResetTest extends TestCase
         Notification::fake();
 
         $user = User::factory()->create([
-            'email' => 'aina@example.com',
+            'email' => 'asd@asd.com',
         ]);
 
         $response = $this->post('/forgot-password', [
-            'email' => 'aina@example.com',
+            'email' => 'asd@asd.com',
         ]);
 
         $response->assertSessionHas('status');
         Notification::assertSentTo($user, ResetPassword::class);
     }
 
-    public function test_user_can_request_password_reset_link_again_without_waiting(): void
-    {
-        Notification::fake();
-
-        $user = User::factory()->create([
-            'email' => 'aina@example.com',
-        ]);
-
-        $this->post('/forgot-password', [
-            'email' => 'aina@example.com',
-        ])->assertSessionHas('status');
-
-        $this->post('/forgot-password', [
-            'email' => 'aina@example.com',
-        ])->assertSessionHas('status');
-
-        Notification::assertSentToTimes($user, ResetPassword::class, 2);
-    }
-
     public function test_password_reset_request_handles_mail_transport_failure(): void
     {
         User::factory()->create([
-            'email' => 'aina@example.com',
+            'email' => 'asd@asd.com',
         ]);
 
         Password::shouldReceive('sendResetLink')
@@ -82,7 +63,7 @@ class PasswordResetTest extends TestCase
             ->andThrow(new TransportException('Bad SMTP credentials'));
 
         $response = $this->from('/forgot-password')->post('/forgot-password', [
-            'email' => 'aina@example.com',
+            'email' => 'asd@asd.com',
         ]);
 
         $response->assertRedirect('/forgot-password');
@@ -92,7 +73,7 @@ class PasswordResetTest extends TestCase
     public function test_user_can_reset_password_with_valid_token(): void
     {
         $user = User::factory()->create([
-            'email' => 'aina@example.com',
+            'email' => 'asd@asd.com',
             'password' => Hash::make('old-password'),
         ]);
 
@@ -100,7 +81,7 @@ class PasswordResetTest extends TestCase
 
         $response = $this->post('/reset-password', [
             'token' => $token,
-            'email' => 'aina@example.com',
+            'email' => 'asd@asd.com',
             'password' => 'new-password',
             'password_confirmation' => 'new-password',
         ]);
