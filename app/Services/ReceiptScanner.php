@@ -5,8 +5,8 @@ namespace App\Services;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use RuntimeException;
-use thiagoalessio\TesseractOCR\TesseractOCR;
-use Throwable;
+use Symfony\Component\Process\ExecutableFinder;
+use Symfony\Component\Process\Process;
 
 class ReceiptScanner
 {
@@ -24,23 +24,108 @@ class ReceiptScanner
 
     protected function readReceiptText($fullPath): string
     {
-        try {
-            $ocr = (new TesseractOCR($fullPath))
-                ->lang('msa+eng')
-                ->psm(6)
-                ->config('preserve_interword_spaces', '1');
+        $executable = $this->resolveTesseractExecutable();
+        $result = $this->runTesseract($executable, $fullPath, 'msa+eng');
 
-            if ($path = env('TESSERACT_PATH')) {
-                $ocr->executable($path);
+        if ($result['successful']) {
+            return trim($result['output']);
+        }
+
+        if ($this->isMissingMalayLanguagePack($result['error'])) {
+            $fallback = $this->runTesseract($executable, $fullPath, 'eng');
+
+            if ($fallback['successful']) {
+                return trim($fallback['output']);
             }
 
-            return trim($ocr->run());
-        } catch (Throwable $exception) {
-            throw new RuntimeException(
-                'Receipt OCR is not available. Install Tesseract OCR, then set TESSERACT_PATH in .env if needed.',
-                previous: $exception
-            );
+            $result = $fallback;
         }
+
+        throw new RuntimeException('Receipt OCR failed. ' . $this->cleanOcrError($result['error']));
+    }
+
+    protected function resolveTesseractExecutable(): string
+    {
+        $configuredPath = trim((string) env('TESSERACT_PATH'), " \t\n\r\0\x0B'\"");
+
+        if ($configuredPath !== '') {
+            if (is_file($configuredPath)) {
+                return $configuredPath;
+            }
+
+            $configuredExecutable = (new ExecutableFinder())->find($configuredPath);
+
+            if ($configuredExecutable) {
+                return $configuredExecutable;
+            }
+
+            throw new RuntimeException("Configured TESSERACT_PATH was not found: {$configuredPath}");
+        }
+
+        $executable = (new ExecutableFinder())->find('tesseract');
+
+        if ($executable) {
+            return $executable;
+        }
+
+        foreach ($this->commonWindowsTesseractPaths() as $path) {
+            if (is_file($path)) {
+                return $path;
+            }
+        }
+
+        throw new RuntimeException(
+            'Receipt OCR needs Tesseract installed. Install Tesseract OCR and set TESSERACT_PATH to tesseract.exe in .env, for example C:\Program Files\Tesseract-OCR\tesseract.exe.'
+        );
+    }
+
+    protected function runTesseract(string $executable, string $imagePath, string $language): array
+    {
+        $process = new Process([
+            $executable,
+            $imagePath,
+            'stdout',
+            '-l',
+            $language,
+            '--psm',
+            '6',
+            '-c',
+            'preserve_interword_spaces=1',
+        ]);
+
+        $process->setTimeout(30);
+        $process->run();
+
+        return [
+            'successful' => $process->isSuccessful(),
+            'output' => $process->getOutput(),
+            'error' => trim($process->getErrorOutput() ?: $process->getOutput()),
+        ];
+    }
+
+    protected function commonWindowsTesseractPaths(): array
+    {
+        return array_values(array_filter([
+            getenv('ProgramFiles') ? getenv('ProgramFiles') . '\Tesseract-OCR\tesseract.exe' : null,
+            getenv('ProgramW6432') ? getenv('ProgramW6432') . '\Tesseract-OCR\tesseract.exe' : null,
+            getenv('ProgramFiles(x86)') ? getenv('ProgramFiles(x86)') . '\Tesseract-OCR\tesseract.exe' : null,
+            getenv('LOCALAPPDATA') ? getenv('LOCALAPPDATA') . '\Programs\Tesseract-OCR\tesseract.exe' : null,
+        ]));
+    }
+
+    protected function isMissingMalayLanguagePack(string $error): bool
+    {
+        $error = strtolower($error);
+
+        return str_contains($error, 'msa.traineddata')
+            || (str_contains($error, 'failed loading language') && str_contains($error, 'msa'));
+    }
+
+    protected function cleanOcrError(string $error): string
+    {
+        $error = trim(preg_replace('/\s+/', ' ', $error));
+
+        return $error !== '' ? $error : 'Tesseract returned no text.';
     }
 
     protected function extractItems($ocrText): array

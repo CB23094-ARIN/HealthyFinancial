@@ -5,6 +5,7 @@ namespace Tests\Unit;
 use App\Services\ReceiptScanner;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
+use RuntimeException;
 
 class ReceiptScannerTest extends TestCase
 {
@@ -49,5 +50,51 @@ class ReceiptScannerTest extends TestCase
         $this->assertSame('Set A', $items[0]['description']);
         $this->assertSame(27.80, $items[0]['amount']);
         $this->assertSame('food', $items[0]['category']);
+    }
+
+    public function test_it_uses_configured_tesseract_path_when_present(): void
+    {
+        $fakeExecutable = __DIR__ . DIRECTORY_SEPARATOR . 'fake-tesseract.exe';
+        $previousPath = getenv('TESSERACT_PATH');
+
+        file_put_contents($fakeExecutable, '');
+        putenv("TESSERACT_PATH={$fakeExecutable}");
+
+        try {
+            $scanner = new ReceiptScanner();
+            $method = (new ReflectionClass($scanner))->getMethod('resolveTesseractExecutable');
+            $method->setAccessible(true);
+
+            $this->assertSame($fakeExecutable, $method->invoke($scanner));
+        } finally {
+            $previousPath === false
+                ? putenv('TESSERACT_PATH')
+                : putenv("TESSERACT_PATH={$previousPath}");
+
+            @unlink($fakeExecutable);
+        }
+    }
+
+    public function test_it_reports_invalid_configured_tesseract_path(): void
+    {
+        $previousPath = getenv('TESSERACT_PATH');
+        $missingPath = __DIR__ . DIRECTORY_SEPARATOR . 'missing-tesseract.exe';
+
+        putenv("TESSERACT_PATH={$missingPath}");
+
+        try {
+            $scanner = new ReceiptScanner();
+            $method = (new ReflectionClass($scanner))->getMethod('resolveTesseractExecutable');
+            $method->setAccessible(true);
+
+            $this->expectException(RuntimeException::class);
+            $this->expectExceptionMessage('Configured TESSERACT_PATH was not found');
+
+            $method->invoke($scanner);
+        } finally {
+            $previousPath === false
+                ? putenv('TESSERACT_PATH')
+                : putenv("TESSERACT_PATH={$previousPath}");
+        }
     }
 }
